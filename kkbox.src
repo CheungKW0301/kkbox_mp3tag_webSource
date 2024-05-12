@@ -1,0 +1,89 @@
+#############################################################
+#  Mp3tag Tag source for kkbox website
+#  Author: Sam Cheung
+#
+#############################################################
+
+[Name]=kkbox
+[BasedOn]=http://www.kkbox.com
+[AlbumUrl]=http://www.kkbox.com/hk/tc/album/%s
+[WordSeparator]=+
+[SearchBy]=Album ID||%id%||%s
+[UserAgent]=1
+[Encoding]=utf-8
+
+
+[ParserScriptIndex]=...
+#
+[ParserScriptAlbum]=...
+# ###################################################################
+#					A  L  B  U  M
+# ###################################################################
+
+debug "on" "C:\Users\sam20\AppData\Roaming\Mp3tag\data\sources\debug_kkbox.htm"
+replace "|" "$verticalBar()"
+
+#cover
+outputto "coverurl"
+findline "<div class=\"album-header\">"
+findline "<div class=\"image-container\">"
+findline "<img src=\""
+findinline "src=\""
+sayuntil "\""
+
+#album
+outputto "Album"
+findline "<div class=\"title\">"
+MoveLine 1
+findinline "<h1>"
+sayuntil "</"
+
+#artist
+outputto "artist"
+findline "<div class=\"artist\" title=\""
+findinline "<div class=\"artist\" title=\""
+sayuntil "\""
+
+#year
+outputto "Year"
+findline "<div class=\"date\">"
+SayRegexp "\d{4}"
+
+findline "<ul"
+
+do
+    # Track
+    outputto "TEMP_Track"
+    findline "<div class=\"index\">"
+    findinline ">"
+    sayuntil "<"
+    say "|"
+
+    # title
+    outputto "TEMP_Title"
+    findline "<div class=\"song\">"
+    findinline "<div class=\"song\"><a href"
+    findinline ">"
+    sayuntil "</"
+    say "|"
+    outputto "tracks"
+	say "|"
+
+    outputto "_length"
+    findline "<div class=\"duration\">"
+    findinline "class=\"duration\">"
+    sayuntil "</"
+    say "|"
+
+    moveline 8
+    findinline "<"
+while "li"
+
+outputto "Title"
+sayoutput "TEMP_Title"
+
+outputto "Track"
+sayoutput "TEMP_Track"
+
+set "TEMP_Track"
+set "TEMP_Title"
